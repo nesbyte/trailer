@@ -21,6 +21,7 @@ type CLIStruct struct {
 	Port            uint16
 	Bind            string
 	S3Endpoint      string
+	Bucket          string
 	UseSSL          bool
 	SecretKeyId     string
 	SecretAccessKey string
@@ -53,6 +54,12 @@ func main() {
 				Usage:       "Which S3 endpoint to listen on",
 				Required:    true,
 				Destination: &args.S3Endpoint,
+			},
+			&cli.StringFlag{
+				Name:        "s3.bucket",
+				Usage:       "Select bucket to use",
+				Required:    true,
+				Destination: &args.Bucket,
 			},
 			&cli.BoolFlag{
 				Name:        "s3.useSSL",
@@ -102,17 +109,9 @@ func (c CLIStruct) HandleGetObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bucket := r.URL.Query().Get("bucket")
-	if bucket == "" {
-		msg := "Empty bucket provided, expecting '?bucket=your-bucket-name'"
-		log.Error().Msg(msg)
-		w.Write([]byte(msg))
-		return
-	}
-
 	path := chi.URLParam(r, "*")
 	ctx := context.Background()
-	obj, err := minioClient.GetObject(ctx, bucket, path, minio.GetObjectOptions{})
+	obj, err := minioClient.GetObject(ctx, c.Bucket, path, minio.GetObjectOptions{})
 	if err != nil {
 		msg := fmt.Sprintf("Unable to download object: %s, from %s\n %s", "object", c.S3Endpoint, err.Error())
 		log.Err(err).Msg(msg)
