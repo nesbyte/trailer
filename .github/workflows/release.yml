@@ -1,0 +1,30 @@
+# This workflow will deploy a golang project
+
+name: Builds and releases
+
+on: 
+  release: 
+    types: 
+    - published
+
+jobs:
+  # test downloads, sets up the go enviornment and runs the test
+
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+        contents: write
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: install zip
+      run: sudo apt install -y zip
+    
+    - name: build all
+      run: source .github/workflows/build.sh
+
+    - name: Upload to release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: ./releases/*
