@@ -15,6 +15,8 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+var Version = "development"
+
 type CLIStruct struct {
 	Port            uint16
 	Bind            string
@@ -31,8 +33,8 @@ func main() {
 	args := CLIStruct{}
 
 	cmd := &cli.Command{
-		Name:  "A wrapper around S3 compatible object storages",
-		Usage: "Provide S3 credentials to get started",
+		Name:      fmt.Sprintf("A wrapper around S3 compatible object storages - version %s", Version),
+		UsageText: "Provide ACCESS_KEY_ID and SECRET_ACCESS_KEY as environment variables",
 		Flags: []cli.Flag{
 			&cli.Uint16Flag{
 				Name:        "port",
