@@ -120,10 +120,13 @@ func (c CLIStruct) HandleGetObject(w http.ResponseWriter, r *http.Request) {
 	}
 	defer obj.Close()
 
+	info, _ := minioClient.StatObject(ctx, bucket, path, minio.StatObjectOptions{})
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", info.Size))
+
+	w.Header().Set("Content-Type", "application/gzip")
 	if _, err := io.Copy(w, obj); err != nil {
 		msg := fmt.Sprintf("Streaming response error\n%s", err.Error())
 		log.Error().Msg(msg)
-		w.Write([]byte(msg))
 		return
 	}
 }
