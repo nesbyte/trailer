@@ -77,6 +77,7 @@ func main() {
 
 			r := chi.NewRouter()
 			r.Get("/v1/*", args.HandleGetObject)
+			r.Get("/ping", args.HandlePing)
 			log.Info().Msgf("Starting server on: '%s'", bindOn)
 			return http.ListenAndServe(bindOn, r)
 		},
@@ -125,4 +126,9 @@ func (c CLIStruct) HandleGetObject(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(msg))
 		return
 	}
+}
+
+func (c CLIStruct) HandlePing(w http.ResponseWriter, r *http.Request) {
+	log.Debug().Msg("Received ping")
+	w.Write([]byte("OK"))
 }
