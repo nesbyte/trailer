@@ -96,7 +96,7 @@ func (c CLIStruct) HandleGetObject(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		msg := fmt.Sprintf("Client error setup: %s", err.Error())
+		msg := fmt.Sprintf("Client error setup for %s: %s", c.S3Endpoint, err.Error())
 		log.Error().Msg(msg)
 		w.Write([]byte(msg))
 		return
@@ -118,15 +118,13 @@ func (c CLIStruct) HandleGetObject(w http.ResponseWriter, r *http.Request) {
 		log.Err(err).Msg(msg)
 		return
 	}
+
 	defer obj.Close()
 
-	info, _ := minioClient.StatObject(ctx, bucket, path, minio.StatObjectOptions{})
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", info.Size))
-
 	w.Header().Set("Content-Type", "application/gzip")
+
 	if _, err := io.Copy(w, obj); err != nil {
-		msg := fmt.Sprintf("Streaming response error\n%s", err.Error())
-		log.Error().Msg(msg)
+		log.Error().Msgf("streaming error: %s", err)
 		return
 	}
 }
